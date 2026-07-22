@@ -14,21 +14,12 @@ warn() { printf "${YELLOW}⚠${NC} %s\n" "$*"; }
 err()  { printf "${RED}✗${NC} %s\n" "$*"; }
 info() { printf "${CYAN}→${NC} %s\n" "$*"; }
 
-# ─── Config (override via env) ──────────────────────────────────
-# CRACKMODE_GATEWAY: systemd user service to check after switch (empty=skip)
-# CRACKMODE_IFACE:   specific WiFi interface (empty=auto-detect)
-: "${CRACKMODE_GATEWAY:=}"
-: "${CRACKMODE_IFACE:=}"
-
 # ─── Helpers ─────────────────────────────────────────────────────
 ram_free() { free -h | awk '/^Mem:/{print $7}'; }
 target_now() { systemctl list-units --type=target --state=active --no-pager 2>/dev/null | awk '/graphical.target|multi-user.target/{print $1; exit}'; }
 target_active() { systemctl list-units --type=target --state=active --no-pager 2>/dev/null | awk '/graphical.target|multi-user.target/{print $1}'; }
-gateway_ok() {
-  local svc="${CRACKMODE_GATEWAY:-}"
-  [[ -z "$svc" ]] && return 0
-  systemctl --user is-active "$svc" 2>/dev/null | grep -q active
-}
+gateway_ok() { systemctl --user is-active openclaw-gateway.service 2>/dev/null | grep -q active; }
+
 # ─── Subcomando: on ──────────────────────────────────────────────
 cmd_on() {
   local cur target="multi-user.target" label="cracking (sin GUI)"
@@ -70,8 +61,8 @@ cmd_on() {
     ok "Gateway activo ✅"
   else
     warn "Gateway NO responde. Verificar con:"
-    warn "  systemctl --user start ${CRACKMODE_GATEWAY:-openclaw-gateway.service}"
-    warn "  journalctl --user -u ${CRACKMODE_GATEWAY:-openclaw-gateway.service} --no-pager | tail -20"
+    warn "  systemctl --user start openclaw-gateway.service"
+    warn "  journalctl --user -u openclaw-gateway.service --no-pager | tail -20"
   fi
 }
 

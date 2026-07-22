@@ -81,7 +81,7 @@ crack-mode help     # Mostrar ayuda
 
 | Variable de entorno | Valor por defecto | Propósito |
 |--------------------|-------------------|-----------|
-| `CRACKMODE_GATEWAY` | `openclaw-gateway.service` | Servicio de usuario systemd a verificar tras el cambio |
+| `CRACKMODE_GATEWAY` | *(vacío = saltar)* | Servicio de usuario systemd a verificar tras el cambio (opcional) |
 | `CRACKMODE_IFACE` | *(detección automática)* | Interfaz WiFi a reafirmar tras el isolate |
 
 ---
@@ -176,7 +176,7 @@ crack-mode help     # Show help
 
 | Environment variable | Default | Purpose |
 |---------------------|---------|---------|
-| `CRACKMODE_GATEWAY` | `openclaw-gateway.service` | Systemd user service to check after switch |
+| `CRACKMODE_GATEWAY` | *(empty = skip)* | Systemd user service to check after switch (optional) |
 | `CRACKMODE_IFACE` | *(auto-detect)* | WiFi interface to re-affirm after isolate |
 
 ---
