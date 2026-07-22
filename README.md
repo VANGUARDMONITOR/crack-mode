@@ -1,4 +1,12 @@
-# crack-mode 🔌
+# ⚡ crack-mode
+
+<p align="center">
+  <img src="docs/CSL_PURO.png" alt="CSL" width="200"/>
+</p>
+
+> **Conmutador de modo GUI / headless para sesiones de cracking**  
+> Switch between GUI and headless mode to free RAM for hashcat  
+> Mantenido por CSL · Laboratorio de Password Cracking
 
 [🇪🇸 Español](#español) | [🇺🇸 English](#english)
 
