@@ -29,6 +29,16 @@ gateway_ok() {
   [[ -z "$svc" ]] && return 0
   systemctl --user is-active "$svc" 2>/dev/null | grep -q active
 }
+# Detectar conexiones activas / Auto-detect active connections (any medium)
+active_connections() {
+  local iface="${CRACKMODE_IFACE:-}"
+  if [[ -n "$iface" ]]; then
+    nmcli -t -f NAME,DEVICE,TYPE connection show --active 2>/dev/null | grep ":$iface:" | head -1
+    return
+  fi
+  nmcli -t -f NAME,DEVICE,TYPE connection show --active 2>/dev/null | grep -vE "^lo:|^tailscale0:" | grep -v ":lo$"
+}
+
 # ─── Subcomando: on ──────────────────────────────────────────────
 cmd_on() {
   local cur target="multi-user.target" label="cracking (sin GUI)"
@@ -54,16 +64,30 @@ cmd_on() {
   # Incidencia 22-Jul-2026: DNS EAI_AGAIN por 6s durante reconexión
   info "Estabilizando red tras el isolate..."
   sleep 5
-  nmcli device connect "$(wifi_iface)" 2>/dev/null || true
+  local conns
+  conns=$(active_connections)
+  if [[ -z "$conns" ]]; then
+    warn "Sin conexiones activas para re-afirmar / No active connections to re-affirm"
+  else
+    echo "$conns" | while IFS=: read -r name dev type; do
+      [[ -z "$name" || -z "$dev" ]] && continue
+      case "$type" in
+        wifi|802-11-wireless)   label="wifi" ;;
+        ethernet|802-3-ethernet) label="ethernet" ;;
+        *) label="$type" ;;
+      esac
+      info "Re-afirmando \"$name\" ($label / $dev)..."
+      nmcli device connect "$dev" 2>/dev/null || true
+    done
+  fi
   sleep 2
-
   # Verificar conectividad
   if ping -c 2 -W 5 1.1.1.1 >/dev/null 2>&1; then
     ok "Red estable ✅"
   else
     warn "Red no responde tras el isolate. Verificar con:"
-    warn "  nmcli device connect $(wifi_iface)"
-    warn "  ip addr show $(wifi_iface)"
+    warn "  nmcli device connect <iface>"
+    warn "  ip addr"
   fi
 
   if gateway_ok; then

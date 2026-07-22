@@ -82,22 +82,23 @@ crack-mode help     # Mostrar ayuda
 | Variable de entorno | Valor por defecto | Propósito |
 |--------------------|-------------------|-----------|
 | `CRACKMODE_GATEWAY` | *(vacío = saltar)* | Servicio de usuario systemd a verificar tras el cambio (opcional) |
-| `CRACKMODE_IFACE` | *(detección automática)* | Interfaz WiFi a reafirmar tras el isolate |
+| `CRACKMODE_IFACE` | *(auto todas)* | Interfaz específica a reafirmar (override opcional) |
 
 ---
 
 ## Notas de diseño
 
-### El flap de WiFi (y por qué el script reafirma la red)
+### Re-afirmación de red agnóstica del medio
 
-`systemctl isolate multi-user.target` mata el gestor de pantalla, lo que puede perturbar `wpa_supplicant` / `NetworkManager` lo suficiente como para gatillar un ciclo de desconexión/reconexión WiFi. En el sistema del autor esto causó ~6 segundos de caída de DNS (`EAI_AGAIN`).
+`systemctl isolate multi-user.target` puede perturbar `NetworkManager` lo suficiente como para gatillar reconexiones en cualquier interfaz — no solo WiFi. El caso crítico documentado fue WiFi (`wpa_supplicant` ligado a la sesión de usuario, ~6s de caída DNS), pero Ethernet y otros medios también pueden flapear.
 
-El script mitiga esto:
-1. Esperando 5 segundos tras el isolate
-2. Reafirmando la conexión WiFi vía `nmcli device connect`
-3. Verificando conectividad a Internet con `ping`
+El script re-afirma **todas las conexiones activas**:
+1. Espera 5 segundos tras el isolate
+2. Detecta conexiones activas via `nmcli -f NAME,DEVICE,TYPE connection show --active`
+3. Re-afirma cada una: `nmcli device connect <interfaz>`
+4. Verifica conectividad a Internet con `ping`
 
-Esto fue descubierto empíricamente (y corregido en la misma sesión) — ver el historial de commits para `post-isolate network stability`.
+Si no hay conexiones activas, avisa y sigue. Si se define `CRACKMODE_IFACE`, solo re-afirma esa.
 
 ### Targets activos múltiples
 
@@ -177,20 +178,23 @@ crack-mode help     # Show help
 | Environment variable | Default | Purpose |
 |---------------------|---------|---------|
 | `CRACKMODE_GATEWAY` | *(empty = skip)* | Systemd user service to check after switch (optional) |
-| `CRACKMODE_IFACE` | *(auto-detect)* | WiFi interface to re-affirm after isolate |
+| `CRACKMODE_IFACE` | *(auto-detect all)* | Specific interface to re-affirm (optional override) |
 
 ---
 
 ## Design notes
 
-### The WiFi flap (and why the script re-affirms the network)
+### Medium-agnostic network re-affirmation
 
-`systemctl isolate multi-user.target` kills the display manager, which can disturb `wpa_supplicant` / `NetworkManager` enough to trigger a WiFi disconnection/reconnection cycle. On the author's system this caused a ~6-second DNS outage (`EAI_AGAIN`).
+`systemctl isolate multi-user.target` can disturb NetworkManager enough to trigger reconnections on any interface — not just WiFi. The documented critical case was WiFi (`wpa_supplicant` tied to the user session, ~6s DNS outage), but Ethernet and other media can flap too.
 
-The script mitigates this by:
-1. Sleeping 5 seconds after the isolate
-2. Re-affirming the WiFi connection via `nmcli device connect`
-3. Verifying Internet reachability with `ping`
+The script re-affirms **all active connections**:
+1. Sleeps 5 seconds after the isolate
+2. Detects active connections via `nmcli -f NAME,DEVICE,TYPE connection show --active`
+3. Re-affirms each one: `nmcli device connect <interface>`
+4. Verifies Internet reachability with `ping`
+
+If no active connections are found, it warns and continues. If `CRACKMODE_IFACE` is set, only that interface is re-affirmed.
 
 ### Multiple active targets
 
