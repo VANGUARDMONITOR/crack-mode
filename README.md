@@ -6,11 +6,13 @@
 
 > **Conmutador de modo GUI / headless para sesiones de cracking**  
 > Switch between GUI and headless mode to free RAM for hashcat  
-> Mantenido por CSL · Laboratorio de Password Cracking
+> Mantenido por CSL Cryptomanager · Laboratorio de Análisis de Contraseñas  
+> Maintained by CSL Cryptomanager · Password Analysis Lab  
+> Publicado bajo [VANGUARDMONITOR](https://github.com/VANGUARDMONITOR) — la cuenta open source de CSL Cryptomanager  
+> Published under [VANGUARDMONITOR](https://github.com/VANGUARDMONITOR) — CSL Cryptomanager's open source account
 
 [🇪🇸 Español](#español) | [🇺🇸 English](#english)
 
-<img src="docs/CSL_PURO.png" alt="CSL" width="32" align="right"/>
 ---
 
 <a name="español"></a>
@@ -44,7 +46,7 @@ La mayoría de los rigs de cracking son servidores headless. Pero si tu máquina
 - **Ubuntu** (o cualquier Linux con `systemd` + `NetworkManager`)
 - `bash` ≥ 4
 - Acceso `sudo` para `systemctl isolate`
-- `nmcli` (NetworkManager CLI) — para reafirmar WiFi tras el cambio de target
+- `nmcli` (NetworkManager CLI) — para reafirmar las conexiones tras el cambio de target
 - Opcional: `sensors` (lm-sensors) para temperatura en `status`
 - Opcional: servicios de usuario systemd con `loginctl enable-linger` si ejecutas servicios (como un gateway) que deben sobrevivir al apagado de la GUI
 
@@ -95,6 +97,23 @@ crack-mode help     # Mostrar ayuda
 
 ---
 
+## Desinstalación
+
+```bash
+rm ~/.local/bin/crack-mode
+```
+
+Limpia las variables de entorno de `~/.bashrc` si las definiste:
+
+```bash
+# Eliminar esta línea si existe:
+# export CRACKMODE_GATEWAY=openclaw-gateway.service
+```
+
+El script no deja cambios persistentes en el sistema — el isolate (`multi-user.target`) no sobrevive a un reinicio.
+
+---
+
 ## Notas de diseño
 
 ### Re-afirmación de red agnóstica del medio
@@ -141,7 +160,7 @@ Most password-cracking rigs are headless servers. But if your crack box is also 
 | Network | stable | stable (re-affirmed) | ✅ |
 | Systemd gateway | active | active (linger) | ✅ |
 
-**GPU performance does not improve** — the gain is RAM, not compute.
+**GPU performance does not improve** — the gain is RAM, not compute. This matters when processing large wordlists, keeping extensive rule chains in memory, or running multiple hashcat instances.
 
 ---
 
@@ -150,7 +169,7 @@ Most password-cracking rigs are headless servers. But if your crack box is also 
 - **Ubuntu** (or any Linux with `systemd` + `NetworkManager`)
 - `bash` ≥ 4
 - `sudo` access for `systemctl isolate`
-- `nmcli` (NetworkManager CLI)
+- `nmcli` (NetworkManager CLI) — to re-affirm connections after the target switch
 - Optional: `sensors` (lm-sensors) for temperature in `status`
 - Optional: systemd user services with `loginctl enable-linger`
 
@@ -161,6 +180,14 @@ Most password-cracking rigs are headless servers. But if your crack box is also 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/VANGUARDMONITOR/crack-mode/main/crack-mode \
   -o ~/.local/bin/crack-mode
+chmod +x ~/.local/bin/crack-mode
+```
+
+Or by cloning the repo:
+
+```bash
+git clone https://github.com/VANGUARDMONITOR/crack-mode.git
+cp crack-mode/crack-mode ~/.local/bin/
 chmod +x ~/.local/bin/crack-mode
 ```
 
@@ -191,6 +218,23 @@ crack-mode help     # Show help
 
 ---
 
+## Uninstall
+
+```bash
+rm ~/.local/bin/crack-mode
+```
+
+Clean up environment variables from `~/.bashrc` if you defined any:
+
+```bash
+# Remove this line if present:
+# export CRACKMODE_GATEWAY=openclaw-gateway.service
+```
+
+The script leaves no persistent changes on the system — the isolate does not survive a reboot.
+
+---
+
 ## Design notes
 
 ### Medium-agnostic network re-affirmation
@@ -214,7 +258,3 @@ On Ubuntu, `graphical.target` pulls in `multi-user.target` as a dependency, so b
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
----
-
-*Maintained by [VANGUARDMONITOR](https://github.com/VANGUARDMONITOR) — part of the [Trinity](https://github.com/VANGUARDMONITOR/Trinity) ecosystem.*
