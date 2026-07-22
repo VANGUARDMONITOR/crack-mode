@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
-# crack-mode — Conmutador de modo cracking (GUI off/on)
-# Permite apagar la GUI para liberar RAM durante sesiones largas de cracking.
-# El gateway es servicio de usuario (linger=yes) — no muere al apagar la GUI.
+# crack-mode — Conmutador de modo cracking / GUI-headless switch
+# Apaga la GUI para liberar RAM en sesiones hashcat. Kills GUI to free RAM for hashcat.
+# El gateway sobrevive via systemd user linger. Gateway survives via linger.
+
 
 set -euo pipefail
 
-# ─── Colores ─────────────────────────────────────────────────────
+# ─── Colors ────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 
