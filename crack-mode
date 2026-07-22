@@ -69,7 +69,7 @@ cmd_on() {
   if gateway_ok; then
     ok "Gateway activo ✅"
   else
-    warn "Gateway NO responde. Verificar con:"
+    warn "Gateway $svc NO responde. Verificar con:"
     warn "  systemctl --user start tu-servicio"
     warn "  journalctl --user -u tu-servicio --no-pager | tail -20"
   fi
