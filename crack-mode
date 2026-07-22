@@ -70,8 +70,8 @@ cmd_on() {
     ok "Gateway activo ✅"
   else
     warn "Gateway NO responde. Verificar con:"
-    warn "  systemctl --user start ${CRACKMODE_GATEWAY:-openclaw-gateway.service}"
-    warn "  journalctl --user -u ${CRACKMODE_GATEWAY:-openclaw-gateway.service} --no-pager | tail -20"
+    warn "  systemctl --user start tu-servicio"
+    warn "  journalctl --user -u tu-servicio --no-pager | tail -20"
   fi
 }
 
