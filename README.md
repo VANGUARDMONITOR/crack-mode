@@ -2,6 +2,7 @@
 
 [🇪🇸 Español](#español) | [🇺🇸 English](#english)
 
+<img src="docs/CSL_PURO.png" alt="CSL" width="32" align="right"/>
 ---
 
 <a name="español"></a>
